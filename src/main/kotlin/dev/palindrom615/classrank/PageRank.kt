@@ -4,6 +4,7 @@ import java.util.concurrent.Callable
 import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.ExecutorService
 import java.util.stream.Collectors
+import kotlin.math.abs
 
 class PageRank(val graph: StochasticGraph<String>) {
     var classScoreVector: ConcurrentMap<String, Double>
@@ -37,12 +38,19 @@ class PageRank(val graph: StochasticGraph<String>) {
                 }
             }
             executorService.invokeAll(jobs)
+
+            if (graph.nodes().map { n -> abs(classScoreVectorOld[n]!! - classScoreVector[n]!!) }
+                    .sum() < graph.size() * ERROR_TOLERANCE) {
+                println(i)
+                return classScoreVector
+            }
         }
         return classScoreVector
     }
 
     companion object {
         const val ALPHA = 0.85
+        const val ERROR_TOLERANCE = 1E-6
 
         private fun newOneVector(keys: Set<String>, v: Double): ConcurrentMap<String, Double> {
             return keys.stream().collect(Collectors.toConcurrentMap({ k -> k }, { k -> v }))

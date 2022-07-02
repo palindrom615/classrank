@@ -12,7 +12,7 @@ import java.util.concurrent.ForkJoinPool
 
 fun main(args: Array<String>) {
     val f = JavaFileFinder()
-    Files.walkFileTree(Path.of("/Users/user/repo"), f)
+    Files.walkFileTree(Path.of(args[0]), f)
     val pool = ForkJoinPool.commonPool()
 
     val makeJavaClassJobs = f.matches().map { m -> Callable { JavaClass.of(m) } }

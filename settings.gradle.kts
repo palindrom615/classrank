@@ -1,3 +1,3 @@
 
-rootProject.name = "prank"
+rootProject.name = "classrank"
 
