@@ -1,3 +1,5 @@
+import dev.palindrom615.classrank.PageRank
+import dev.palindrom615.classrank.StochasticGraph
 import java.nio.file.FileSystems
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
@@ -13,10 +15,27 @@ fun main(args: Array<String>) {
     Files.walkFileTree(Path.of("/Users/user/repo"), f)
     val pool = ForkJoinPool.commonPool()
 
-    val rs = f.matches().map{m -> Callable { JavaClass.of(m) }}
-    pool.invokeAll(rs)
-    JavaClass.classMap
-    return
+    val makeJavaClassJobs = f.matches().map { m -> Callable { JavaClass.of(m) } }
+    pool.invokeAll(makeJavaClassJobs)
+
+    val graph = StochasticGraph<String>()
+    val makeGraphJobs = JavaClass.classMap.values.map { cls ->
+        Callable {
+            graph.addNode(
+                cls.toString(),
+                cls.imports().filter { i -> JavaClass.classMap.containsKey(i) })
+        }
+    }
+    pool.invokeAll(makeGraphJobs)
+
+    val p = PageRank(graph)
+
+    val a = p.iterate(1000, pool).entries.toList().sortedBy { t -> -t.value }
+    println(a.sumOf { e -> e.value })
+    for (t in a) {
+        println(t.key + ": " + t.value)
+    }
+
 }
 
 class JavaFileFinder : SimpleFileVisitor<Path>() {

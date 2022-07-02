@@ -3,14 +3,18 @@ import dev.palindrom615.classrank.JavaPackage
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 
-class JavaClass private constructor(val path: Path) {
+class JavaClass private constructor(path: Path) {
     val name: String
-    val pkg: JavaPackage
-    val imports: List<String>
+    private val pkg: JavaPackage
+    private val imports: Set<String>
+
+    fun imports(): Set<String> {
+        return imports
+    }
 
     init {
         val compilationUnit = StaticJavaParser.parse(path)
-        imports = compilationUnit.imports.map {i -> i.name.toString()}
+        imports = HashSet(compilationUnit.imports.map { i -> i.name.toString() })
         name = path.fileName.toString().replace(".java", "")
         pkg = JavaPackage.of(compilationUnit.packageDeclaration.get().name.asString())
         pkg.addClass(this)
@@ -30,9 +34,6 @@ class JavaClass private constructor(val path: Path) {
                 classMap[res.toString()] = res
                 res
             }
-        }
-        fun of(name: String): JavaClass? {
-            return classMap[name]
         }
     }
 }
