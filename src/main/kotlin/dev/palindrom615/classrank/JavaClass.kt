@@ -6,9 +6,11 @@ import java.util.concurrent.ConcurrentHashMap
 class JavaClass private constructor(val path: Path) {
     val name: String
     val pkg: JavaPackage
+    val imports: List<String>
 
     init {
         val compilationUnit = StaticJavaParser.parse(path)
+        imports = compilationUnit.imports.map {i -> i.name.toString()}
         name = path.fileName.toString().replace(".java", "")
         pkg = JavaPackage.of(compilationUnit.packageDeclaration.get().name.asString())
         pkg.addClass(this)
@@ -28,6 +30,9 @@ class JavaClass private constructor(val path: Path) {
                 classMap[res.toString()] = res
                 res
             }
+        }
+        fun of(name: String): JavaClass? {
+            return classMap[name]
         }
     }
 }
