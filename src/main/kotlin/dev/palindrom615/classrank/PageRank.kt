@@ -41,10 +41,11 @@ class PageRank(val graph: StochasticGraph<String>) {
 
             if (graph.nodes().map { n -> abs(classScoreVectorOld[n]!! - classScoreVector[n]!!) }
                     .sum() < graph.size() * ERROR_TOLERANCE) {
-                println(i)
+                println("converged on loop ${i}\n")
                 return classScoreVector
             }
         }
+        println("Not converged")
         return classScoreVector
     }
 
@@ -53,7 +54,7 @@ class PageRank(val graph: StochasticGraph<String>) {
         const val ERROR_TOLERANCE = 1E-6
 
         private fun newOneVector(keys: Set<String>, v: Double): ConcurrentMap<String, Double> {
-            return keys.stream().collect(Collectors.toConcurrentMap({ k -> k }, { k -> v }))
+            return keys.stream().collect(Collectors.toConcurrentMap({ k -> k }, { _ -> v }))
         }
     }
 }

@@ -30,10 +30,11 @@ fun main(args: Array<String>) {
 
     val p = PageRank(graph)
 
-    val a = p.iterate(1000, pool).entries.toList().sortedBy { t -> -t.value }
-    println(a.sumOf { e -> e.value })
-    for (t in a) {
-        println(t.key + ": " + t.value)
+    val a = p.iterate(10000, pool).entries.toList().sortedBy { t -> -t.value }
+    println("\n${"Class".padEnd(60)}| scaled pagerank")
+    println("-".repeat(80))
+    for (t in a.stream().limit(10)) {
+        println("${t.key.padEnd(60)}: ${t.value * graph.size()}")
     }
 
 }
